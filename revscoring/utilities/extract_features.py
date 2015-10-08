@@ -49,6 +49,11 @@ BATCH_SIZE = 50
 def main(argv=None):
     args = docopt.docopt(__doc__, argv=argv)
 
+    logging.basicConfig(
+        level=logging.WARNING if not args['--debug'] else logging.DEBUG,
+        format='%(asctime)s %(levelname)s:%(name)s -- %(message)s'
+    )
+
     features = import_from_path(args['<features>'])
 
     session = mwapi.Session(args['--host'],
@@ -68,7 +73,7 @@ def main(argv=None):
     verbose = args['--verbose']
     debug = args['--debug']
 
-    run(rev_labels, value_labels, features, extractor, verbose, debug)
+    run(rev_labels, value_labels, features, extractor, verbose)
 
 
 def read_rev_labels(f):
@@ -82,11 +87,7 @@ def read_rev_labels(f):
         yield int(rev_id), label
 
 
-def run(rev_labels, value_labels, features, extractor, verbose, debug):
-    logging.basicConfig(
-        level=logging.WARNING if not debug else logging.DEBUG,
-        format='%(asctime)s %(levelname)s:%(name)s -- %(message)s'
-    )
+def run(rev_labels, value_labels, features, extractor, verbose):
 
     while True:
         batch_rev_labels = list(islice(rev_labels, BATCH_SIZE))
